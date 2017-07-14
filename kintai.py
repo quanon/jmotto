@@ -1,18 +1,19 @@
 import argparse
 from collections import namedtuple
+from datetime import datetime as dt
 from jmotto import login
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as Wait
 
-if __name__ == '__main__':
-  Kintai = namedtuple('Kintai', ('value', 'name'))
+Kintai = namedtuple('Kintai', ('value', 'name'))
 
+if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--start',
+  parser.add_argument('--shusha',
                       action='store_const', dest='kintai',
                       const=Kintai('start', '出社'))
-  parser.add_argument('--end',
+  parser.add_argument('--taisha',
                       action='store_const', dest='kintai',
                       const=Kintai('end', '退社'))
   args = parser.parse_args()
@@ -36,11 +37,25 @@ if __name__ == '__main__':
     except:
       driver.quit()
   else:
-    print(f'{kintai.name}時刻は打刻済みです。')
+    print(f'※ {kintai.name}時刻は打刻済みです。')
 
-  time_selector = f'.portal-timecard-{kintai.value} .portal-timecard-time'
-  time = driver.find_element_by_css_selector(time_selector)
+  start_time_selector = f'.portal-timecard-start .portal-timecard-time'
+  start_time = driver.find_element_by_css_selector(start_time_selector).text
+  end_time_selector = '.portal-timecard-end .portal-timecard-time'
+  end_time = driver.find_element_by_css_selector(end_time_selector).text
 
-  print(f'{kintai.name}時刻は {time.text} です。')
+  if start_time:
+    print(f'出社時刻は {start_time} です。')
+
+  if not start_time and end_time:
+    print(f'※ 出社時刻を打刻し忘れています。')
+    print(f'退社時刻は {end_time} です。')
+
+  if start_time and end_time:
+    delta = dt.strptime(end_time, '%H:%M') - dt.strptime(start_time, '%H:%M')
+    hours = ':'.join(str.zfill(2) for str in str(delta).split(':')[:2])
+
+    print(f'退社時刻は {end_time} です。')
+    print(f'就業時間は {hours} です。')
 
   driver.quit()

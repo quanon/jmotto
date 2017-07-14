@@ -8,7 +8,7 @@
 
 ## How to use
 
-* Click shusha button: `python kintai.py --start`
-* Click taisha button: `python kintai.py --end`
+* Click shusha button: `python kintai.py --shusha`
+* Click taisha button: `python kintai.py --taisha`
 * Show timecard of the current month: `python timecard.py`
 * Show timecard of the past month: `python timecard.py --yyyymm 201701`
