@@ -1,12 +1,11 @@
-import argparse
-import re
 from datetime import datetime as dt, date
 from jmotto import login
+from prettytable import PrettyTable
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as Wait
-
-header = f'{"日付":>8}{"出社":>8}{"退社":>8}{"就業時間":>6}{"備考":>8}'
+import argparse
+import re
 
 
 class Row(object):
@@ -16,11 +15,6 @@ class Row(object):
     self._end = end
     self._note = note
 
-  def __str__(self):
-    note = self.note or '  '
-    return f'{self.date}{self.start or "":>10}' \
-           + f'{self.end or "":>10}{self.hours or "":>10}{note or "":>8}'
-
   @property
   def date(self):
     return self._date
@@ -28,14 +22,14 @@ class Row(object):
   @property
   def start(self):
     if self._start == '未入力':
-      return None
+      return ''
     else:
       return self._start
 
   @property
   def end(self):
     if self._end == '未入力':
-      return None
+      return ''
     else:
       return self._end
 
@@ -45,7 +39,7 @@ class Row(object):
       delta = dt.strptime(self.end, '%H:%M') - dt.strptime(self.start, '%H:%M')
       return ':'.join(str.zfill(2) for str in str(delta).split(':')[:2])
     else:
-      return None
+      return ''
 
   @property
   def note(self):
@@ -53,6 +47,7 @@ class Row(object):
       return '修正'
     else:
       return self._note
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -80,7 +75,7 @@ if __name__ == '__main__':
   month_element = driver.find_element_by_css_selector('.jtcard-fld-targetdate')
   month = re.search(r'\d+(?=月)', month_element.text).group()
 
-  print(header)
+  table = PrettyTable(['日付', '出社', '退社', '就業時間', '備考'])
 
   for tr in driver.find_elements_by_css_selector('table.tcard-month tr'):
     td_list = tr.find_elements_by_css_selector('td')
@@ -95,7 +90,10 @@ if __name__ == '__main__':
     if match:
       note = match.group()
 
-    print(Row(date, start, end, note))
+    row = Row(date, start, end, note)
+    table.add_row([row.date, row.start, row.end, row.hours, row.note])
+
+  print(table)
 
   driver.quit()
   display.stop()
