@@ -60,7 +60,7 @@ if __name__ == '__main__':
   args = parser.parse_args()
   yyyymm = args.yyyymm or dt.now().strftime('%Y%m')
 
-  driver = login()
+  driver, display = login()
 
   url = 'https://gws45.j-motto.co.jp/cgi-bin/JM0213271/ztcard.cgi'
   url = f'{url}?cmd=tcardindex#date={yyyymm}01'
@@ -75,6 +75,7 @@ if __name__ == '__main__':
     )
   except:
     driver.quit()
+    display.stop()
 
   month_element = driver.find_element_by_css_selector('.jtcard-fld-targetdate')
   month = re.search(r'\d+(?=月)', month_element.text).group()
@@ -97,3 +98,4 @@ if __name__ == '__main__':
     print(Row(date, start, end, note))
 
   driver.quit()
+  display.stop()

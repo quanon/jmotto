@@ -22,7 +22,7 @@ if __name__ == '__main__':
   if not kintai:
     exit()
 
-  driver = login()
+  driver, display = login()
 
   btn_selector = f'.portal-timecard-{kintai.value} .portal-timecard-btn'
   btn = driver.find_element_by_css_selector(btn_selector)
@@ -36,13 +36,19 @@ if __name__ == '__main__':
       )
     except:
       driver.quit()
+      display.stop()
   else:
     print(f'※ {kintai.name}時刻は打刻済みです。')
 
   start_time_selector = f'.portal-timecard-start .portal-timecard-time'
   start_time = driver.find_element_by_css_selector(start_time_selector).text
+  if start_time == '---':
+    start_time = None
+
   end_time_selector = '.portal-timecard-end .portal-timecard-time'
   end_time = driver.find_element_by_css_selector(end_time_selector).text
+  if end_time == '---':
+    end_time = None
 
   if start_time:
     print(f'出社時刻は {start_time} です。')
@@ -59,3 +65,4 @@ if __name__ == '__main__':
     print(f'就業時間は {hours} です。')
 
   driver.quit()
+  display.stop()

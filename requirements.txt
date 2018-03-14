@@ -1,1 +1,2 @@
+pyvirtualdisplay==0.2.1
 selenium==3.4.3
